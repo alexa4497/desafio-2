@@ -1,0 +1,37 @@
+#ifndef USUARIOS_H
+#define USUARIOS_H
+
+#include <fstream>
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+class Cancion;
+
+class Usuario {
+protected:
+    string nickname;
+    string membresia;
+    string ciudad;
+    string pais;
+    string fechaInscripcion;
+
+    int cancionesReproducidasSinPublicidad;
+
+public:
+    Usuario(const string& n, const string& m, const string& c, const string& p);
+
+    bool esPremium() const;
+    void mostrarPublicidadSiAplica();
+    static const int MAX_FAVORITOS = 10000;
+    Cancion* listaFavoritos[MAX_FAVORITOS];
+    int numFavoritos;
+
+    void agregarFavorito(Cancion* c);
+    void seguirLista(Usuario* otroUsuarioPremium);
+};
+
+
+bool iniciarSesion();
+#endif
