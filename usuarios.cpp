@@ -1,6 +1,6 @@
 #include "usuarios.h"
 
-bool iniciarSesion() {
+bool Usuario::iniciarSesion() {
     string usuario_ingresado;
     string fecha_ingresada;
 
@@ -32,7 +32,6 @@ bool iniciarSesion() {
         return false;
     }
 
-
     string* registrosUsuario = new string[numUsuarios];
     int indiceUsuario = 0;
 
@@ -48,47 +47,49 @@ bool iniciarSesion() {
     bool sesionExitosa = false;
 
     for (int i = 0; i < numUsuarios; ++i) {
-        string lineaMatriz = registrosUsuario[i];
-        string nicknameArchivo;
-        string fechaArchivo;
+        string lineaCompleta = registrosUsuario[i];
+        stringstream ss(lineaCompleta);
+        string campo[5];
 
-        size_t pos1 = lineaMatriz.find(',');
-        if (pos1 == string::npos) continue;
+        for (int j = 0; j < 5; ++j) {
+            if (!getline(ss, campo[j], ',')) {
+                break;
+            }
+        }
 
-        nicknameArchivo = lineaMatriz.substr(0, pos1);
+        if (ss.fail() && !ss.eof()) continue;
+
+
+        string nicknameArchivo = campo[0];
+        string fechaArchivo = campo[4];
+
         size_t inicio_nick = nicknameArchivo.find_first_not_of(" \t");
         if (string::npos != inicio_nick) {
             nicknameArchivo = nicknameArchivo.substr(inicio_nick);
         }
 
-        size_t current_pos = pos1 + 1;
-        for (int j = 0; j < 3; ++j) {
-            current_pos = lineaMatriz.find(',', current_pos);
-            if (current_pos == string::npos) break;
-            current_pos++;
-        }
-
-        if (current_pos != string::npos) {
-            size_t fecha_inicio_pos = current_pos;
-            fechaArchivo = lineaMatriz.substr(fecha_inicio_pos);
-
-            size_t fin = fechaArchivo.find_last_not_of(" \t\r\n");
-            if (string::npos != fin) {
-                fechaArchivo = fechaArchivo.substr(0, fin + 1);
-            } else {
-                fechaArchivo = "";
-            }
+        size_t fin = fechaArchivo.find_last_not_of(" \t\r\n");
+        if (string::npos != fin) {
+            fechaArchivo = fechaArchivo.substr(0, fin + 1);
         } else {
-            continue;
+            fechaArchivo = "";
         }
 
         if (nicknameArchivo == usuario_ingresado && fechaArchivo == fecha_ingresada) {
-            cout << "Inicio de sesion exitoso para el usuario: " << usuario_ingresado << endl;
+
+            nickname = nicknameArchivo;
+            membresia = campo[1];
+            ciudad = campo[2];
+            pais = campo[3];
+
+
+            fechaInscripcion = fechaArchivo;
+
+            cout << "Inicio de sesion exitoso para el usuario: " << nickname << endl;
             sesionExitosa = true;
             break;
         }
     }
-
     delete[] registrosUsuario;
 
     if (!sesionExitosa) {
@@ -100,4 +101,16 @@ bool iniciarSesion() {
     return sesionExitosa;
 }
 
+
+Usuario::Usuario() :
+    nickname(""),
+    membresia(""),
+    ciudad(""),
+    pais(""),
+    fechaInscripcion(""),
+
+    numFavoritos(0)
+{
+
+}
 

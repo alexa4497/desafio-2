@@ -1,7 +1,9 @@
 #include "main.h"
+#include "usuarios.h"
 
 int main()
 {
-    iniciarSesion();
+    Usuario usuarioActual;
+    usuarioActual.iniciarSesion();
     return 0;
 }

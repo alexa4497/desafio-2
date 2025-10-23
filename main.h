@@ -4,6 +4,5 @@
 
 using namespace std;
 
-bool iniciarSesion();
 
 #endif // MAIN_H
