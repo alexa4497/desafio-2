@@ -1,0 +1,2 @@
+alexa,e,medellin,Colombia,20-10-2025
+manuela,p,sabaneta,Colombia,15-10-2025
