@@ -1,0 +1,6 @@
+La Gata Bajo la Lluvia,123450101,5,/users/storage/musica/rociodurcal/lagata_128.ogg,/users/storage/musica/rociodurcal/lagata_320.ogg,1500000
+Bésame Mucho,123450205,18,/users/storage/musica/andreasbocelli/besame_128.ogg,/users/storage/musica/andreasbocelli/besame_320.ogg,875000
+If That's What it Takes,543210312,240,/users/storage/musica/celinedion/ifthats_128.ogg,/users/storage/musica/celinedion/ifthats_320.ogg,520000
+Smooth Criminal,543210408,310,/users/storage/musica/michaeljackson/smooth_128.ogg,/users/storage/musica/michaeljackson/smooth_320.ogg,998500
+A tu lado,987650102,205,/users/storage/claudialorelle/audio/a\ tu\ lado_128.ogg,/users/storage/claudialorelle/audio/a\ tu\ lado_320.ogg,45000
+Onda Vaselina,432100501,190,/users/storage/musica/ov7/onda_128.ogg,/users/storage/musica/ov7/onda_320.ogg,600000

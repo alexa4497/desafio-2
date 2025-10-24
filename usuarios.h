@@ -12,7 +12,7 @@ using namespace std;
 class Cancion;
 
 class Usuario {
-protected:
+private:
     string nickname;
     string membresia;
     string ciudad;
@@ -27,14 +27,13 @@ public:
 
     bool esPremium() const;
     void mostrarPublicidadSiAplica();
-
     static const int MAX_FAVORITOS = 10000;
     Cancion* listaFavoritos[MAX_FAVORITOS];
     int numFavoritos;
 
     void agregarFavorito(Cancion* c);
     void seguirLista(Usuario* otroUsuarioPremium);
-    bool iniciarSesion();
+    bool iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo);
 };
 
 #endif
