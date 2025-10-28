@@ -9,14 +9,15 @@ using namespace std;
 class Album {
 public:
     int idAlbum;
-    int idArtista;
+    int idArtista; // 0 si no está presente en el archivo
     string nombre;
-    string fecha;
-    int duracionTotal;
+    string fecha; // YYYY-MM-DD
+    int duracionTotal; // segundos
     string sello;
     string portadaRuta;
     int puntaje;
-    string generos;
+    string generos; // "Pop;Latina;..."
+
 public:
     Album();
     Album(int idA, int idArt, const string& nombre, const string& fecha, int durTotal,

@@ -21,7 +21,6 @@ extern Usuario* cargarUsuariosDesdeArchivo(const string& ruta, int& numUsuarios)
 
 int main() {
 
-
     Usuario usuarioLogueado;
 
     Usuario* usuariosDB = nullptr;

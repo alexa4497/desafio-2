@@ -1,12 +1,12 @@
-#include "Canciones.h" // Se asume que esta cabecera declara la clase Cancion y la función cargarCancionesDesdeArchivo
-#include "metricas.h" // Asumo que esta cabecera declara incrementarContador()
+#include "Canciones.h"
+#include "metricas.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <cctype>
 #include <stdexcept>
-#include <algorithm> // Para usar std::to_string si no está en otro .h
+#include <algorithm>
 
 using namespace std;
 
@@ -19,17 +19,15 @@ struct DatosCarga {
     int capacidad;
 };
 
-// --- IMPLEMENTACIÓN DE TRIM (Función de utilidad) ---
 static string trim(const string& str) {
     size_t first = str.find_first_not_of(' ');
     if (string::npos == first) return "";
     size_t last = str.find_last_not_of(' ');
     return str.substr(first, (last - first + 1));
+    incrementarContador(1);
 }
 
-// --- IMPLEMENTACIÓN DE LOS MÉTODOS DE CANCION (Resuelve los errores de Linkeo) ---
 
-// 1. Constructor por defecto
 Cancion::Cancion() : idCancion(0), nombre(""), duracion(0), rutaAudio128(""), rutaAudio320(""), vecesReproducida(0) {}
 
 
@@ -37,7 +35,7 @@ string Cancion::getIdentificador() const {
     return to_string(idCancion);
 }
 
-// Implementación de asignarDatos
+
 void Cancion::asignarDatos(string nom, long long id, int dur, string r128, string r320, long long rep) {
     nombre = nom;
     idCancion = id;
@@ -50,7 +48,7 @@ void Cancion::asignarDatos(string nom, long long id, int dur, string r128, strin
 
 Cancion& Cancion::operator=(const Cancion& otra) {
 
-    // incrementarContador();
+
     if (this != &otra) {
         idCancion = otra.idCancion;
         nombre = otra.nombre;
@@ -60,9 +58,10 @@ Cancion& Cancion::operator=(const Cancion& otra) {
         vecesReproducida = otra.vecesReproducida;
     }
     return *this;
+    incrementarContador(1);
 }
 
-// --- FUNCIONES DE CARGA Y REDIMENSIONAMIENTO ---
+
 
 void redimensionarArreglo(DatosCarga& datos) {
     int nuevaCapacidad = datos.capacidad * 2;
@@ -75,9 +74,10 @@ void redimensionarArreglo(DatosCarga& datos) {
     delete[] datos.arreglo;
     datos.arreglo = nuevoArreglo;
     datos.capacidad = nuevaCapacidad;
+    incrementarContador(1);
 }
 
-// 4. Función cargarCancionesDesdeArchivo (Función global)
+
 Cancion* cargarCancionesDesdeArchivo(const string& nombreArchivo, int& tamano) {
     ifstream archivo(RUTA_BASE_DATOS);
 
@@ -135,6 +135,5 @@ Cancion* cargarCancionesDesdeArchivo(const string& nombreArchivo, int& tamano) {
     archivo.close();
     tamano = datos.tamano;
     return datos.arreglo;
+    incrementarContador(1);
 }
-
-
