@@ -4,20 +4,19 @@
 
 #include <string>
 
-    using namespace std;
+using namespace std;
 
 class Album {
 public:
     int idAlbum;
-    int idArtista; // 0 si no está presente en el archivo
+    int idArtista;
     string nombre;
-    string fecha; // YYYY-MM-DD
-    int duracionTotal; // segundos
+    string fecha;
+    int duracionTotal;
     string sello;
     string portadaRuta;
     int puntaje;
-    string generos; // "Pop;Latina;..."
-
+    string generos;
 public:
     Album();
     Album(int idA, int idArt, const string& nombre, const string& fecha, int durTotal,
