@@ -47,7 +47,7 @@ void Cancion::asignarDatos(string nom, long long id, int dur, string r128, strin
     vecesReproducida = rep;
 }
 
-// 3. Operador de asignación
+
 Cancion& Cancion::operator=(const Cancion& otra) {
 
     // incrementarContador();

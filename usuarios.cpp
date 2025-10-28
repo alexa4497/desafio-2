@@ -211,7 +211,7 @@ bool Usuario::iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo, Usua
                             cin.clear();
 
                             cin.ignore(10000, '\n');
-                            op_menu = 4; // Forzar el cierre de sesión en caso de error
+                            op_menu = 4;
                             continue;
                         }
 
@@ -229,8 +229,14 @@ bool Usuario::iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo, Usua
                             break;
 
                         case 3:
-                            miListaFavoritos.gestionar_listas(catalogoCanciones, tamanoCatalogo, membresia, numUsuariosTotal);
+                            if (membresia == "p") {
+                                miListaFavoritos.gestionar_listas(catalogoCanciones, tamanoCatalogo, membresia, numUsuariosTotal);
+
+                            } else {
+                                cout << "\nMENSAJE: Debes ser usuario Premium para acceder a la Reproduccion Aleatoria." << endl;
+                            }
                             break;
+
                         case 4:
                             cout << "Cerrando sesion..." << endl;
                             break;

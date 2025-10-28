@@ -34,7 +34,6 @@ void imprimirInfoCancion(const Cancion& cancion, int indice, int total, const st
     cout << "-------------------------------------------------------" << endl;
     incrementarContador(1);
 }
-
 void reproducirEnOrdenSecuencial(Cancion* lista, int numCanciones, const string& membresia, int numUsuariosTotal) {
     if (numCanciones == 0) {
         cout << "La lista esta vacia." << endl;
@@ -44,7 +43,7 @@ void reproducirEnOrdenSecuencial(Cancion* lista, int numCanciones, const string&
     int indiceActual = 0;
     int opcion = 0;
 
-
+    // Se asume que 'p' significa Premium, tal como está en el código original.
     bool esPremium = (membresia == "p");
 
     while (opcion != 3 && indiceActual >= 0 && indiceActual < numCanciones) {
@@ -54,13 +53,13 @@ void reproducirEnOrdenSecuencial(Cancion* lista, int numCanciones, const string&
         cout << "\n--- CONTROL DE REPRODUCCION SECUENCIAL ---" << endl;
         cout << "1. Siguiente cancion" << endl;
 
+        // INICIO DE LA MODIFICACIÓN: Mostrar opciones 2 y 4 SOLO si es Premium.
         if (esPremium) {
             cout << "2. Volver a la cancion anterior" << endl;
-
             cout << "4. Repetir cancion actual indefinidamente (Premium)" << endl;
-        } else {
-            cout << "2. Volver a la cancion anterior (Premium)" << endl;
         }
+        // Si no es Premium, no se imprime ninguna línea aquí.
+        // FIN DE LA MODIFICACIÓN
 
         cout << "3. Detener reproduccion" << endl;
         cout << "Ingrese su opcion: ";
@@ -83,16 +82,16 @@ void reproducirEnOrdenSecuencial(Cancion* lista, int numCanciones, const string&
                 } else {
                     cout << "Ya estas en la primera cancion. No se puede retroceder mas." << endl;
                 }
-            } else {
+            }else {
+                // Mensaje de error si un usuario no Premium intenta ingresar '2'
                 cout << "\nMENSAJE: Debes ser usuario Premium para usar la funcion 'Volver a la cancion anterior'." << endl;
             }
         } else if (opcion == 4) {
 
-
             if (esPremium) {
                 int opcionRepetir = 0;
                 cout << "\n=======================================================" << endl;
-                cout << "         MODO REPETICION INDEFINIDA ACTIVADO" << endl;
+                cout << "      MODO REPETICION INDEFINIDA ACTIVADO" << endl;
                 cout << "=======================================================" << endl;
 
                 while (opcionRepetir != 1) {
@@ -114,8 +113,9 @@ void reproducirEnOrdenSecuencial(Cancion* lista, int numCanciones, const string&
                     }
 
 
-                    this_thread::sleep_for(TIEMPO_ESPERA);
-                    gestorPublicidad.intentarMostrarPublicidad(membresia);
+                    // Asumiendo que TIEMPO_ESPERA y gestorPublicidad son visibles
+                    // this_thread::sleep_for(TIEMPO_ESPERA);
+                    // gestorPublicidad.intentarMostrarPublicidad(membresia);
                 }
 
 
