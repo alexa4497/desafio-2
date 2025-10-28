@@ -1,0 +1,3 @@
+01,Lugar Secreto,3600,2024-05-10,Sony Music,/users/storage/claudia_lorelle/image/lugar_secreto.png,9,Pop;Latina
+02,The Wall,4800,1979-11-30,EMI Records,/users/storage/pink_floyd/image/the_wall.png,10,Rock;Clasica
+03,Jazz Standards,2800,2023-01-01,Blue Note,/users/storage/various_artists/image/jazz_standards.png,8,Jazz

@@ -1,78 +1,278 @@
-#include "Canciones.h"
+#include "canciones.h"
+#include "metricas.h"
+#include "publicidad.h"
+#include "usuarios.h"
+#include "reproductor.h"
+#include "lista_favoritos.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <cstdlib>
 #include <ctime>
+#include <string>
+
+
+
+static Publicidad gestorPublicidad; //
 
 using namespace std;
 using namespace std::chrono;
 
 
-const int K = 5;
-const seconds TIEMPO_ESPERA(3);
-
-void imprimirInfoCancion(const Cancion& cancion, int indice, int total) {
+void imprimirInfoCancion(const Cancion& cancion, int indice, int total, const string& membresia) {
     cout << "\n-------------------- REPRODUCIENDO --------------------" << endl;
     cout << "  Cancion: " << cancion.getNombre() << " (" << (indice + 1) << " de " << total << ")" << endl;
-    // La portada del album se asume que se relaciona con la cancion
     cout << "  Ruta a la portada del album: [RUTA_ALBUM]" << endl;
-    cout << "  Ruta al archivo de audio (128 kbps): " << cancion.getRutaAudio128() << endl;
+
+
+    if (membresia == "p") {
+        cout << "  Ruta al archivo de audio (320 kbps - Premium): " << cancion.getRutaAudio320() << endl;
+    } else {
+        cout << "  Ruta al archivo de audio (128 kbps - Estándar): " << cancion.getRutaAudio128() << endl;
+    }
+
     cout << "-------------------------------------------------------" << endl;
+    incrementarContador(1);
 }
 
-void reproducirEnOrdenSecuencial(Cancion* arregloCanciones, int tamanoTotal) {
-    // 1. Iniciar la reproducción desde el primer elemento.
-    for (int i = 0; i < tamanoTotal; ++i) {
+void reproducirEnOrdenSecuencial(Cancion* lista, int numCanciones, const string& membresia, int numUsuariosTotal) {
+    if (numCanciones == 0) {
+        cout << "La lista esta vacia." << endl;
+        return;
+    }
 
-        imprimirInfoCancion(arregloCanciones[i], i, tamanoTotal);
+    int indiceActual = 0;
+    int opcion = 0;
 
-        this_thread::sleep_for(seconds(2)); // Pequeña espera para simular el proceso
 
-        cout << "Cancion terminada. Pasando a la siguiente." << endl;
+    bool esPremium = (membresia == "p");
+
+    while (opcion != 3 && indiceActual >= 0 && indiceActual < numCanciones) {
+
+        imprimirInfoCancion(lista[indiceActual], indiceActual, numCanciones, membresia);
+
+        cout << "\n--- CONTROL DE REPRODUCCION SECUENCIAL ---" << endl;
+        cout << "1. Siguiente cancion" << endl;
+
+        if (esPremium) {
+            cout << "2. Volver a la cancion anterior" << endl;
+
+            cout << "4. Repetir cancion actual indefinidamente (Premium)" << endl;
+        } else {
+            cout << "2. Volver a la cancion anterior (Premium)" << endl;
+        }
+
+        cout << "3. Detener reproduccion" << endl;
+        cout << "Ingrese su opcion: ";
+
+        if (!(cin >> opcion)) {
+            cout << "Entrada invalida. Saltando a la siguiente cancion por defecto." << endl;
+            cin.clear();
+            cin.ignore(10000, '\n');
+            opcion = 1;
+            continue;
+        }
+
+        if (opcion == 1) {
+            gestorPublicidad.intentarMostrarPublicidad(membresia);
+            indiceActual++;
+        } else if (opcion == 2) {
+            if (esPremium) {
+                if (indiceActual > 0) {
+                    indiceActual--;
+                } else {
+                    cout << "Ya estas en la primera cancion. No se puede retroceder mas." << endl;
+                }
+            } else {
+                cout << "\nMENSAJE: Debes ser usuario Premium para usar la funcion 'Volver a la cancion anterior'." << endl;
+            }
+        } else if (opcion == 4) {
+
+
+            if (esPremium) {
+                int opcionRepetir = 0;
+                cout << "\n=======================================================" << endl;
+                cout << "         MODO REPETICION INDEFINIDA ACTIVADO" << endl;
+                cout << "=======================================================" << endl;
+
+                while (opcionRepetir != 1) {
+                    imprimirInfoCancion(lista[indiceActual], indiceActual, numCanciones, membresia);
+
+                    cout << "\nRepitiendo indefinidamente: " << lista[indiceActual].getNombre() << endl;
+                    cout << "1. Salir del modo repetición y volver al control secuencial" << endl;
+                    cout << "Ingrese su opcion: ";
+
+                    if (!(cin >> opcionRepetir)) {
+                        cout << "Entrada invalida. Intente de nuevo." << endl;
+                        cin.clear();
+                        cin.ignore(10000, '\n');
+                        continue;
+                    }
+
+                    if (opcionRepetir != 1) {
+                        cout << "Opción no válida. Solo puedes elegir '1' para salir." << endl;
+                    }
+
+
+                    this_thread::sleep_for(TIEMPO_ESPERA);
+                    gestorPublicidad.intentarMostrarPublicidad(membresia);
+                }
+
+
+                cin.ignore(10000, '\n');
+
+            } else {
+                cout << "\nMENSAJE: Debes ser usuario Premium para usar la funcion 'Repetir cancion'." << endl;
+            }
+
+        } else if (opcion == 3) {
+            cout << "Deteniendo la reproduccion..." << endl;
+        } else {
+            cout << "Opcion no valida. Mantenemos la cancion actual." << endl;
+        }
+
+        if (indiceActual >= numCanciones) {
+            break;
+        }
+
+        if (opcion != 3 && opcion != 4) {
+            cout << "\nPresione ENTER para continuar." << endl;
+            cin.ignore(10000, '\n');
+        }
     }
 
     cout << "\n=======================================================" << endl;
-    cout << "REPRODUCCIÓN EN ORDEN FINALIZADA: Fin del catalogo." << endl;
+    cout << "REPRODUCION EN ORDEN FINALIZADA/DETENIDA." << endl;
     cout << "=======================================================" << endl;
-
-    cout << "Opciones de reproducción:" << endl;
-    cout << "1.- Reproducir 2.- Detener...." << endl;
+    incrementarContador(1);
 }
 
 
+void reproducirAleatorioTemporizado(Cancion* lista, int numCanciones, const string& membresia, int numUsuariosTotal) {
 
-void reproducirAleatorioTemporizado(Cancion* arregloCanciones, int tamanoTotal) {
-    if (tamanoTotal == 0) {
+    if (numCanciones == 0) {
         cout << "El catalogo esta vacio." << endl;
         return;
     }
 
+
+    int limiteK = (numCanciones < 5) ? numCanciones : 5;
+
     srand(time(0));
 
+    bool esPremium = (membresia == "p");
+    int indiceActual = -1;
     int cancionesReproducidas = 0;
 
 
-    while (cancionesReproducidas < K) {
-        int indiceAleatorio = rand() % tamanoTotal;
+    bool yaReproducida[numCanciones];
 
-        imprimirInfoCancion(arregloCanciones[indiceAleatorio], indiceAleatorio, tamanoTotal);
-        this_thread::sleep_for(TIEMPO_ESPERA);
-
-        cancionesReproducidas++;
-
-        // Mostrar aviso
-        if (cancionesReproducidas < K) {
-            cout << "\nAuto-avance despues de 3 segundos. Quedan " << (K - cancionesReproducidas) << " canciones para detenerse." << endl;
-        }
+    for(int i = 0; i < numCanciones; ++i) {
+        yaReproducida[i] = false;
     }
 
+    const int MAX_HISTORIAL = 5;
+    int historial[MAX_HISTORIAL] = {-1, -1, -1, -1, -1};
+    int tamanoHistorial = 0;
 
     cout << "\n=======================================================" << endl;
-    cout << "REPRODUCCIÓN ALEATORIA DETENIDA: Limite de K=" << K << " alcanzado." << endl;
+    cout << "INICIANDO REPRODUCCIÓN ALEATORIA AUTOMATICA (Limite: " << limiteK << " canciones, 3s/cancion)" << endl;
     cout << "=======================================================" << endl;
 
-    cout << "Opciones de reproduccion:" << endl;
-    cout << "1.- Reproducir 2.- Detener...." << endl;
-    cout << "*Todas las opciones que apliquen (siguiente, previa, repetir, etc. para premium)" << endl;
+    while (cancionesReproducidas < limiteK) {
+
+
+        do {
+            indiceActual = rand() % numCanciones;
+        } while (yaReproducida[indiceActual]);
+        yaReproducida[indiceActual] = true;
+
+        if (tamanoHistorial < MAX_HISTORIAL) {
+            historial[tamanoHistorial] = indiceActual;
+            tamanoHistorial++;
+        } else {
+            for (int i = 0; i < MAX_HISTORIAL - 1; ++i) {
+                historial[i] = historial[i+1];
+            }
+            historial[MAX_HISTORIAL - 1] = indiceActual;
+        }
+
+
+        imprimirInfoCancion(lista[indiceActual], indiceActual, numCanciones, membresia);
+        cout << "Ciclo " << (cancionesReproducidas + 1) << " de " << limiteK << ". Proxima cancion en 3 segundos..." << endl;
+
+
+        this_thread::sleep_for(TIEMPO_ESPERA);
+        incrementarContador(1);
+
+        cancionesReproducidas++;
+    }
+
+    cout << "\n=====================================================================" << endl;
+    cout << "LIMITE DE K=" << limiteK << " ALCANZADO. Las canciones no se repitieron." << endl;
+    cout << "=======================================================================" << endl;
+
+
+    int opcion = 0;
+    while (opcion != 4) {
+
+        cout << "\n--- CONTROL DE REPRODUCCION FINALIZADO ---" << endl;
+        cout << "Cancion actual: " << lista[indiceActual].getNombre() << endl;
+
+        cout << "1. Siguiente cancion aleatoria (Puede repetirse)" << endl;
+
+
+        if (esPremium) {
+            cout << "2. Volver a la cancion anterior (Premium - Historial: " << tamanoHistorial - 1 << " previas)" << endl;
+        } else {
+            cout << "2. Volver a la cancion anterior (Premium)" << endl;
+        }
+
+        cout << "4. Detener reproduccion" << endl;
+        cout << "Ingrese su opcion: ";
+
+        if (!(cin >> opcion)) {
+            cout << "Entrada invalida. Intente de nuevo." << endl;
+            cin.clear();
+            cin.ignore(10000, '\n');
+            continue;
+        }
+
+        if (opcion == 1) {
+
+            if (tamanoHistorial < MAX_HISTORIAL) {
+                historial[tamanoHistorial++] = indiceActual;
+            } else {
+                for (int i = 0; i < MAX_HISTORIAL - 1; ++i) historial[i] = historial[i+1];
+                historial[MAX_HISTORIAL - 1] = indiceActual;
+            }
+
+            indiceActual = rand() % numCanciones;
+            cout << "\nReproduciendo siguiente cancion..." << endl;
+
+            imprimirInfoCancion(lista[indiceActual], indiceActual, numCanciones, membresia);
+        } else if (opcion == 2) {
+            if (esPremium) {
+                if (tamanoHistorial > 1) {
+                    historial[--tamanoHistorial] = -1;
+                    indiceActual = historial[tamanoHistorial - 1];
+                    cout << "\nVolviendo a la cancion anterior..." << endl;
+
+                    imprimirInfoCancion(lista[indiceActual], indiceActual, numCanciones, membresia);
+                } else {
+                    cout << "\nMENSAJE: No hay mas canciones previas en el historial (maximo 4 previas)." << endl;
+                }
+            } else {
+                cout << "\nMENSAJE: Debes ser usuario Premium para usar la funcion 'Volver a la cancion anterior'." << endl;
+            }
+        } else if (opcion == 4) {
+            cout << "Deteniendo la reproduccion..." << endl;
+        } else {
+            cout << "Opcion no valida. Intente de nuevo." << endl;
+        }
+
+        cin.ignore(10000, '\n');
+    }
+
+    incrementarContador(1);
 }

@@ -1,39 +1,33 @@
 #ifndef USUARIOS_H
 #define USUARIOS_H
 
-#include <fstream>
 #include <string>
-#include <iostream>
-#include <sstream>
+#include "Canciones.h"
+#include "lista_favoritos.h"
+#include "publicidad.h"
 
 
 using namespace std;
 
-class Cancion;
-
 class Usuario {
-private:
-    string nickname;
-    string membresia;
-    string ciudad;
-    string pais;
-    string fechaInscripcion;
+public:
+    string nickname;
+    string membresia;
+    string ciudad;
+    string pais;
+    string fechaInscripcion;
+    ListaFavoritos miListaFavoritos;
 
 public:
+    Usuario();
 
-    Usuario();
+    bool iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo, Usuario* dbUsuarios, int numUsuariosTotal);
 
-    Usuario(const string& n, const string& m, const string& c, const string& p);
+    const std::string& getNickname() const { return nickname; }
 
-    bool esPremium() const;
-    void mostrarPublicidadSiAplica();
-    static const int MAX_FAVORITOS = 10000;
-    Cancion* listaFavoritos[MAX_FAVORITOS];
-    int numFavoritos;
 
-    void agregarFavorito(Cancion* c);
-    void seguirLista(Usuario* otroUsuarioPremium);
-    bool iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo);
 };
 
-#endif
+Usuario* cargarUsuariosDesdeArchivo(const std::string& ruta, int& numUsuarios);
+
+#endif // USUARIOS_H

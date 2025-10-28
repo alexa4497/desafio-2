@@ -1,0 +1,7 @@
+1,1,Consigue 3 meses de UdeAfunes Premium gratis si te suscribes ahora mismo
+2,2,La nueva pelicula de ciencia ficcion ya esta en cines No te la pierdas
+3,3,Oferta por tiempo limitado 50 por ciento descuento en tu primer pedido de pizza
+4,1,Prueba el nuevo sabor de cafe helado en tu cafeteria favorita
+5,3,Gana un viaje a la playa Registrate hoy en la aplicacion de viajes y concursa
+6,2,Aprende a programar C plus plus con el mejor curso online Inscribete ya
+7,1,Compra nuevos auriculares de alta fidelidad para disfrutar mejor de UdeAfunes

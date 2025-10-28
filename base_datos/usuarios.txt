@@ -1,2 +1,3 @@
-alexa,e,medellin,colombia,20-10-2025
-manuela,p,sabaneta,colombia,15-10-2025
+alexa,p,medellin,colombia,20-10-2025
+manuela,e,sabaneta,colombia,15-10-2025
+carolina,p,lima,peru,21-10-2025

@@ -1,24 +1,101 @@
 #include "usuarios.h"
 #include "Canciones.h"
+#include "metricas.h"
 #include <iostream>
 #include <fstream>
-#include <cstring>
-#include <unistd.h> // Necesario para sleep(duracion)
+#include <sstream>
 
 using namespace std;
+
+extern Usuario* DB_USUARIOS_GLOBAL;
+extern int NUM_USUARIOS_GLOBAL;
+extern void incrementarContador(long long cantidad);
+
 
 Usuario::Usuario() :
     nickname(""),
     membresia(""),
     ciudad(""),
     pais(""),
-    fechaInscripcion(""),
-    numFavoritos(0)
+    fechaInscripcion("")
 {
-
 }
 
-bool Usuario::iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo) {
+
+extern void incrementarContador(long long cantidad);
+
+
+
+Usuario* cargarUsuariosDesdeArchivo(const std::string& ruta, int& numUsuarios) {
+    incrementarContador(1);
+    std::ifstream archivo(ruta);
+    if (!archivo.is_open()) {
+        std::cerr << "Error: No se pudo abrir el archivo de usuarios: " << ruta << std::endl;
+        numUsuarios = 0;
+        return nullptr;
+    }
+
+
+    std::string linea;
+    int contadorLineas = 0;
+    while (std::getline(archivo, linea)) {
+        contadorLineas++;
+    }
+
+    numUsuarios = contadorLineas;
+
+
+    archivo.clear();
+    archivo.seekg(0, std::ios::beg);
+
+    if (numUsuarios == 0) {
+        return nullptr;
+    }
+    Usuario* db = new Usuario[numUsuarios];
+    int i = 0;
+
+
+    while (std::getline(archivo, linea) && i < numUsuarios) {
+        std::stringstream ss(linea);
+
+
+        string nick, memb, ciu, pais, fecha;
+
+
+        if (getline(ss, nick, ',') &&
+            getline(ss, memb, ',') &&
+            getline(ss, ciu, ',') &&
+            getline(ss, pais, ',') &&
+            getline(ss, fecha))
+        {
+
+            size_t fin = fecha.find_last_not_of(" \t\r\n");
+            if (string::npos != fin) {
+                fecha = fecha.substr(0, fin + 1);
+            } else {
+                fecha = "";
+            }
+
+
+            db[i].nickname = nick;
+            db[i].membresia = memb;
+            db[i].ciudad = ciu;
+            db[i].pais = pais;
+            db[i].fechaInscripcion = fecha;
+        } else {
+            std::cerr << "Advertencia: Linea de usuario malformada omitida: " << linea << std::endl;
+        }
+
+
+        incrementarContador(1);
+        i++;
+    }
+
+    archivo.close();
+    return db;
+}
+
+bool Usuario::iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo, Usuario* dbUsuarios, int numUsuariosTotal) {
     string usuario_ingresado;
     string fecha_ingresada;
 
@@ -29,7 +106,11 @@ bool Usuario::iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo) {
     cout << "Ingrese su Fecha de Inscripcion (formato DD-MM-AA): ";
     cin >> fecha_ingresada;
 
+
+    cin.ignore(10000, '\n');
+
     const string RUTA_ARCHIVO = "base_datos/usuarios.txt";
+
 
     ifstream contadorArchivo(RUTA_ARCHIVO);
     int numUsuarios = 0;
@@ -64,119 +145,120 @@ bool Usuario::iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo) {
 
     bool sesionExitosa = false;
 
+
     for (int i = 0; i < numUsuarios; ++i) {
         string lineaCompleta = registrosUsuario[i];
 
         string nicknameArchivo;
+        string membresiaArchivo;
+        string ciudadArchivo;
+        string paisArchivo;
         string fechaArchivo;
-        string campo[5];
 
-        // Implementación de parsing sin sstream
-        size_t pos = 0;
-        size_t next_pos = lineaCompleta.find(',');
-        int j = 0;
-        while(next_pos != string::npos && j < 5) {
-            campo[j] = lineaCompleta.substr(pos, next_pos - pos);
-            pos = next_pos + 1;
-            next_pos = lineaCompleta.find(',', pos);
-            j++;
-        }
-        if (j < 5) {
-            campo[j] = lineaCompleta.substr(pos);
-        }
-
-        nicknameArchivo = campo[0];
-        fechaArchivo = campo[4];
-
-        size_t inicio_nick = nicknameArchivo.find_first_not_of(" \t");
-        if (string::npos != inicio_nick) {
-            nicknameArchivo = nicknameArchivo.substr(inicio_nick);
-        }
-
-        size_t fin = fechaArchivo.find_last_not_of(" \t\r\n");
-        if (string::npos != fin) {
-            fechaArchivo = fechaArchivo.substr(0, fin + 1);
-        } else {
-            fechaArchivo = "";
-        }
-
-        if (nicknameArchivo == usuario_ingresado && fechaArchivo == fecha_ingresada) {
-
-            nickname = nicknameArchivo;
-            membresia = campo[1];
-            ciudad = campo[2];
-            pais = campo[3];
-            fechaInscripcion = fechaArchivo;
-
-            cout << "Inicio de sesion exitoso para el usuario: " << nickname << endl;
-            sesionExitosa = true;
-
-            if (catalogoCanciones != nullptr && tamanoCatalogo > 0) {
-
-                int indiceActual = 0;
-                char opcion = '0';
-                bool reproduccionActiva = true;
-
-                cout << "\n=======================================================" << endl;
-                cout << "  INICIANDO REPRODUCCIÓN EN ORDEN (MODO NORMAL) " << endl;
-                cout << "=======================================================" << endl;
-
-                while (reproduccionActiva && indiceActual < tamanoCatalogo) {
-
-                    imprimirInfoCancion(catalogoCanciones[indiceActual], indiceActual, tamanoCatalogo);
-
-                    int duracionCancion = catalogoCanciones[indiceActual].getDuracion();
-
-                    // 2. MENÚ INMEDIATO CON OPCIÓN DE SALTO
-                    cout << "\n-------------------- MENÚ REPRODUCTOR --------------------" << endl;
-                    cout << "La cancion esta en reproduccion (" << duracionCancion << " segundos restantes). Ingrese una opcion para detener o continuar." << endl;
-                    cout << "1. Interrumpir y cambiar a Reproduccion Aleatoria Temporizada (K=5)" << endl;
-                    cout << "2. Siguiente cancion (SALTAR inmediatamente)" << endl;
-                    cout << "Ingrese una opcion (1, 2, o cualquier otra para CONTINUAR/ESPERAR): ";
-
-                    cin.ignore(1000, '\n');
-                    opcion = cin.get();
-
-                    if (opcion == '1') {
-                        // 3. CAMBIO A REPRODUCCIÓN ALEATORIA (INTERRUPCIÓN)
-                        cout << "\n=======================================================" << endl;
-                        cout << "  INTERRUPCIÓN: INICIANDO REPRODUCCIÓN ALEATORIA (K=5) " << endl;
-                        cout << "=======================================================" << endl;
-
-                        reproducirAleatorioTemporizado(catalogoCanciones, tamanoCatalogo);
-
-                        reproduccionActiva = false;
-                    } else if (opcion == '2') {
-
-                        cout << "\nSaltando a la siguiente cancion..." << endl;
-                        indiceActual++;
-
-                    } else {
-
-                        cout << "\nContinuando con la reproduccion secuencial. Espere " << duracionCancion << " segundos (simulacion)..." << endl;
-                        sleep(duracionCancion);
+        stringstream ss(lineaCompleta);
 
 
-                        cout << "Cancion terminada. Pasando a la siguiente." << endl;
-                        indiceActual++;
-                    }
-                }
+        if (getline(ss, nicknameArchivo, ',') &&
+            getline(ss, membresiaArchivo, ',') &&
+            getline(ss, ciudadArchivo, ',') &&
+            getline(ss, paisArchivo, ',') &&
+            getline(ss, fechaArchivo))
+        {
 
-                if (reproduccionActiva) {
-                    cout << "\n=======================================================" << endl;
-                    cout << "REPRODUCCIÓN EN ORDEN FINALIZADA: Fin del catalogo." << endl;
-                    cout << "=======================================================" << endl;
-                }
-
+            size_t fin = fechaArchivo.find_last_not_of(" \t\r\n");
+            if (string::npos != fin) {
+                fechaArchivo = fechaArchivo.substr(0, fin + 1);
             } else {
-                cout << "Advertencia: No se pudo cargar el catalogo de canciones. La reproduccion no esta disponible." << endl;
+                fechaArchivo = "";
             }
 
-            break;
+
+            if (nicknameArchivo == usuario_ingresado && fechaArchivo == fecha_ingresada) {
+
+
+                nickname = nicknameArchivo;
+                membresia = membresiaArchivo;
+                ciudad = ciudadArchivo;
+                pais = paisArchivo;
+                fechaInscripcion = fechaArchivo;
+
+                cout << "Inicio de sesion exitoso para el usuario: " << nickname << endl;
+                sesionExitosa = true;
+
+
+                DB_USUARIOS_GLOBAL = dbUsuarios;
+                NUM_USUARIOS_GLOBAL = numUsuariosTotal;
+
+
+                miListaFavoritos.cargar_favoritos_desde_archivo(nickname, catalogoCanciones, tamanoCatalogo, i);
+
+
+                if (catalogoCanciones != nullptr && tamanoCatalogo > 0) {
+                    int op_menu = 0;
+
+                    do {
+                        cout << "\n=======================================================" << endl;
+                        cout << "              MENÚ PRINCIPAL DE REPRODUCCION             " << endl;
+                        cout << "=======================================================" << endl;
+                        cout << "1. Reproducir Catálogo Completo (Orden Secuencial)" << endl;
+                        cout << "2. Reproducir Catálogo Completo (Modo Aleatorio)" << endl;
+                        cout << "3. Gestionar Lista de Favoritos" << endl;
+                        cout << "4. Cerrar Sesion" << endl;
+                        cout << "Ingrese su opcion: ";
+
+                        if (!(cin >> op_menu)) {
+                            cout << "Entrada invalida. Saliendo de la sesion." << endl;
+                            cin.clear();
+
+                            cin.ignore(10000, '\n');
+                            op_menu = 4; // Forzar el cierre de sesión en caso de error
+                            continue;
+                        }
+
+                        switch (op_menu) {
+                        case 1:
+                            reproducirEnOrdenSecuencial(catalogoCanciones, tamanoCatalogo, membresia,numUsuariosTotal);
+
+                            break;
+                        case 2:
+                            if (membresia == "p") {
+                                reproducirAleatorioTemporizado(catalogoCanciones, tamanoCatalogo, membresia,numUsuariosTotal);
+                            } else {
+                                cout << "\nMENSAJE: Debes ser usuario Premium para acceder a la Reproduccion Aleatoria." << endl;
+                            }
+                            break;
+
+                        case 3:
+                            miListaFavoritos.gestionar_listas(catalogoCanciones, tamanoCatalogo, membresia, numUsuariosTotal);
+                            break;
+                        case 4:
+                            cout << "Cerrando sesion..." << endl;
+                            break;
+                        default:
+                            cout << "Opcion no valida. Intente de nuevo." << endl;
+                            break;
+                        }
+
+                        // Pausa
+                        if (op_menu != 4) {
+                            cout << "\nPresione ENTER para volver al menu principal...";
+                            // Usar getline para esperar ENTER de forma segura.
+                            string dummy;
+                            getline(cin, dummy);
+                        }
+
+                    } while (op_menu != 4);
+
+                } else {
+                    cout << "Advertencia: No se pudo cargar el catalogo de canciones. La reproduccion no esta disponible." << endl;
+                }
+
+                break;
+            }
         }
     }
     delete[] registrosUsuario;
-
+    incrementarContador(1);
     if (!sesionExitosa) {
         cout << "Error: Nombre de usuario o fecha de inscripcion incorrectos." << endl;
     } else {
@@ -185,3 +267,4 @@ bool Usuario::iniciarSesion(Cancion* catalogoCanciones, int tamanoCatalogo) {
 
     return sesionExitosa;
 }
+

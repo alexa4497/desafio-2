@@ -1,0 +1,6 @@
+1,P,Juan,Perez,A012345678
+2,C,Maria,Lopez,B987654321
+3,M,Carlos,Ruiz,C112233445
+4,M,Sofia,Gomez,D556677889
+5,P,Andres,Rojas,E001122334
+6,C,Laura,Vega,F998877665
