@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// CORRECCION: Se añade numUsuariosTotal a ambas firmas
+
 void reproducirEnOrdenSecuencial(Cancion* arregloCanciones, int tamanoTotal, const string& membresia, int numUsuariosTotal);
 void reproducirAleatorioTemporizado(Cancion* arregloCanciones, int tamanoTotal, const string& membresia, int numUsuariosTotal);
 

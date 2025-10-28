@@ -27,7 +27,6 @@ static string trim(const string& str) {
     if (string::npos == first) return "";
     size_t last = str.find_last_not_of(' ');
     return str.substr(first, (last - first + 1));
-    incrementarContador(1);
 }
 
 // 2. Función buscarCancionEnDB
@@ -43,7 +42,6 @@ Cancion* buscarCancionEnDB(long long idCancion, Cancion* dbCanciones, int numDB)
         } catch (...) {
         }
     }
-    incrementarContador(1);
     return nullptr;
 }
 
@@ -70,7 +68,6 @@ int ListaFavoritos::buscarCancionEnFavoritos(const string& idCancion) {
         }
     }
     return -1;
-    incrementarContador(1);
 }
 
 void ListaFavoritos::guardar_favoritos_a_archivo() {
@@ -160,7 +157,6 @@ void ListaFavoritos::guardar_favoritos_a_archivo() {
     } else {
         cout << "Error de guardado: No se pudo escribir en el archivo maestro de favoritos." << endl;
     }
-    incrementarContador(1);
 }
 
 
@@ -217,10 +213,10 @@ void ListaFavoritos::agregarCancion(const string& idCancion, Cancion* dbCancione
     }
 }
 
-
+// lista_favoritos.cpp
 
 void ListaFavoritos::quitarCancion(const string& idCancion) {
-
+    // 1. INICIO: Reiniciar el contador de iteraciones (Se mantiene)
 
 
     string idLimpio = trim(idCancion);
@@ -271,7 +267,7 @@ void ListaFavoritos::cargar_favoritos_desde_archivo(const std::string& nicknameU
     }
     archivo.close();
 
-
+    // 1. Encontrar la lista del usuario actual (segmentada por el punto '.')
     stringstream ss_listas(lineaCompleta);
     string listaUsuarioActual;
     int indice = 0;
@@ -298,13 +294,13 @@ void ListaFavoritos::cargar_favoritos_desde_archivo(const std::string& nicknameU
         idsConComas = idsConComas.substr(1, idsConComas.length() - 2);
     }
 
-
+    // Si la lista está vacía después de la limpieza
     if (trim(idsConComas).empty()) {
         cout << "INFORME DE CARGA FINAL: Lista de favoritos cargada. Total de canciones: 0" << endl;
         return;
     }
 
-
+    // 3. Procesar los IDs separados por coma
     stringstream ss_ids(idsConComas);
     string idToken;
     int cancionesCargadas = 0;
@@ -391,8 +387,9 @@ void ListaFavoritos::seguir_otra_lista(Cancion* catalogoCanciones, int tamanoCat
         archivo.close();
         std::cout << "ADVERTENCIA: El archivo maestro de favoritos esta vacio." << std::endl;
 
+        // 4. Cálculo y muestra de métricas (Archivo maestro vacío)
         memoriaActual = calcularMemoriaTotal(tamanoCatalogo, NUM_USUARIOS_GLOBAL, numCanciones);
-        mostrarMetricas(memoriaActual, "SEGUIR LISTA (ARCHIVO MAESTRO VACIO)");
+        mostrarMetricas(memoriaActual, "SEGUIR LISTA (ARCHIVO MAESTRO VACÍO)");
         return;
     }
 
@@ -411,7 +408,7 @@ void ListaFavoritos::seguir_otra_lista(Cancion* catalogoCanciones, int tamanoCat
 
         // 5. Cálculo y muestra de métricas (Lista de usuario objetivo vacía)
         memoriaActual = calcularMemoriaTotal(tamanoCatalogo, NUM_USUARIOS_GLOBAL, numCanciones);
-        mostrarMetricas(memoriaActual, "SEGUIR LISTA (LISTA OBJETIVO VACIA)");
+        mostrarMetricas(memoriaActual, "SEGUIR LISTA (LISTA OBJETIVO VACÍA)");
         return;
     }
 
@@ -470,7 +467,7 @@ void ListaFavoritos::seguir_otra_lista(Cancion* catalogoCanciones, int tamanoCat
 
         // 7. Cálculo y muestra de métricas (Sin cambios/Error en adición)
         memoriaActual = calcularMemoriaTotal(tamanoCatalogo, NUM_USUARIOS_GLOBAL, numCanciones);
-        mostrarMetricas(memoriaActual, "SEGUIR LISTA (SIN CAMBIOS/FALLO EN ADICION)");
+        mostrarMetricas(memoriaActual, "SEGUIR LISTA (SIN CAMBIOS/FALLO EN ADICIÓN)");
     }
 }
 

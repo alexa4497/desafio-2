@@ -30,8 +30,9 @@ size_t calcularMemoriaTotal(int numCancionesDB, int numUsuariosTotal, int numCan
     size_t memPublicidad = (size_t)MAX_ADS * sizeof(MensajePublicitario);
 
     size_t memoriaTotal = memCancionesFijas + memUsuariosFijas + memPunterosFavoritos + memPublicidad; // 👈 SE SUMA
-
+    incrementarContador(1);
     return memoriaTotal;
+
 }
 
 
